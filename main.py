@@ -21,6 +21,76 @@ worldSides = {
 }
 sqrtTwo = (2 ** 0.5)
 
+def DegreeToMove(direction, entity):
+    if type(entity) != Bullet:
+        if direction == 0:
+            if entity.position[0] + entity.speed < resolution[0]:
+                entity.position[0] += entity.speed
+
+        elif direction == 45:
+            if entity.position[0] + entity.speed < resolution[0]:
+                entity.position[0] += entity.speed / sqrtTwo
+            if entity.position[1] + entity.speed < resolution[1]:
+                entity.position[1] += entity.speed / sqrtTwo
+
+        elif direction == 90:
+            if entity.position[1] + entity.speed < resolution[1]:
+                entity.position[1] += entity.speed
+
+        elif direction == 135:
+            if entity.position[0] - entity.speed > 0:
+                entity.position[0] -= entity.speed / sqrtTwo
+            if entity.position[1] + entity.speed < resolution[1]:
+                entity.position[1] += entity.speed / sqrtTwo
+
+        elif direction == 180:
+            if entity.position[0] - entity.speed > 0:
+                entity.position[0] -= entity.speed
+
+        elif direction == 225:
+            if entity.position[0] - entity.speed > 0:
+                entity.position[0] -= entity.speed / sqrtTwo
+            if entity.position[1] - entity.speed > 0:
+                entity.position[1] -= entity.speed / sqrtTwo
+
+        elif direction == 270:
+            if entity.position[1] - entity.speed > 0:
+                entity.position[1] -= entity.speed
+
+        elif direction == 315:
+            if entity.position[0] + entity.speed < resolution[0]:
+                entity.position[0] += entity.speed / sqrtTwo
+            if entity.position[1] - entity.speed > 0:
+                entity.position[1] -= entity.speed / sqrtTwo
+
+    else:
+        if direction == 0:
+            entity.position[0] += entity.speed
+
+        elif direction == 45:
+            entity.position[0] += entity.speed / sqrtTwo
+            entity.position[1] += entity.speed / sqrtTwo
+
+        elif direction == 90:
+            entity.position[1] += entity.speed
+
+        elif direction == 135:
+            entity.position[0] -= entity.speed / sqrtTwo
+            entity.position[1] += entity.speed / sqrtTwo
+
+        elif direction == 180:
+            entity.position[0] -= entity.speed
+
+        elif direction == 225:
+            entity.position[0] -= entity.speed / sqrtTwo
+            entity.position[1] -= entity.speed / sqrtTwo
+
+        elif direction == 270:
+            entity.position[1] -= entity.speed
+
+        elif direction == 315:
+            entity.position[0] += entity.speed / sqrtTwo
+            entity.position[1] -= entity.speed / sqrtTwo
 
 class Bullet:
     def __init__(self, speed, isVisible, color=(200, 0, 0), bulletType="p_common"):
@@ -41,33 +111,7 @@ class Bullet:
 
     def MoveBullet(self):
         if self.isVisible:
-            if self.direction == 0:
-                self.position[0] += self.speed
-
-            elif self.direction == 45:
-                self.position[0] += self.speed / sqrtTwo
-                self.position[1] += self.speed / sqrtTwo
-
-            elif self.direction == 90:
-                self.position[1] += self.speed
-
-            elif self.direction == 135:
-                self.position[0] -= self.speed / sqrtTwo
-                self.position[1] += self.speed / sqrtTwo
-
-            elif self.direction == 180:
-                self.position[0] -= self.speed
-
-            elif self.direction == 225:
-                self.position[0] -= self.speed / sqrtTwo
-                self.position[1] -= self.speed / sqrtTwo
-
-            elif self.direction == 270:
-                self.position[1] -= self.speed
-
-            elif self.direction == 315:
-                self.position[0] += self.speed / sqrtTwo
-                self.position[1] -= self.speed / sqrtTwo
+            DegreeToMove(self.direction, self)
 
     def MakeVisible(self, position, direction):
         if not self.isVisible:
@@ -108,7 +152,7 @@ class Player:
 
         self.position = position
         self.speed = speed
-        self.shiftCooldown = 0
+        self.lastShift = 0
         self.direction = 270
         self.hitbox = pygame.rect.Rect(self.position[0] - 30, self.position[1] - 30, 60, 60)
 
@@ -159,18 +203,18 @@ class Player:
         if currentDirection != "":
             self.direction = worldSides["".join(sorted(currentDirection))]
 
-        if isShift and (time.time() - self.shiftCooldown >= 2):
-            self.shiftCooldown = time.time()
+        if isShift and (time.time() - self.lastShift >= 2):
+            self.lastShift = time.time()
             if len(currentDirection) == 2:
                 if currentDirection[0] == "w":
-                    self.position[1] -= min(SPEED_ / (2 ** 0.5) * self.speed, self.position[1])
+                    self.position[1] -= min(SPEED_ / sqrtTwo * self.speed, self.position[1])
                 else:
-                    self.position[1] += min(SPEED_ / (2 ** 0.5) * self.speed, resolution[1]-self.position[1])
+                    self.position[1] += min(SPEED_ / sqrtTwo * self.speed, resolution[1]-self.position[1])
 
                 if (currentDirection[1] == "a"):
-                    self.position[0] -= min(SPEED_ / (2 ** 0.5) * self.speed, self.position[0])
+                    self.position[0] -= min(SPEED_ / sqrtTwo * self.speed, self.position[0])
                 else:
-                    self.position[0] += min(SPEED_ / (2 ** 0.5) * self.speed, resolution[0]-self.position[0])
+                    self.position[0] += min(SPEED_ / sqrtTwo * self.speed, resolution[0]-self.position[0])
 
             elif len(currentDirection) == 1:
                 if currentDirection[0] == "w":
@@ -195,22 +239,19 @@ class Player:
 class Enemy:
     def __init__(self, position, health, speed, bulletType ="e_common"):
         self.position = position
+        self.direction = random.randint(0, 7) * 45
         self.hitbox = pygame.rect.Rect(self.position[0] - 20, self.position[1] - 20, 40, 40)
 
+        self.lastMove = 0
         self.health = health
         self.speed = speed
         bullet = Bullet(0.5, False, bulletType=bulletType)
 
     def Move(self):
-        if hero.position[0] - self.position[0] > 0:
-            self.position[0] += self.speed + (random.random() * 0.25 - 0.125)
-        else:
-            self.position[0] -= self.speed + (random.random() * 0.25 - 0.125)
-
-        if hero.position[1] - self.position[1] > 0:
-            self.position[1] += self.speed + (random.random() * 0.25 - 0.125)
-        else:
-            self.position[1] -= self.speed + (random.random() * 0.25 - 0.125)
+        if (time.time() - self.lastMove >= 2):
+            self.lastMove = time.time()
+            self.direction = random.randint(0, 7) * 45
+        DegreeToMove(self.direction, self)
 
         self.hitbox = pygame.rect.Rect(self.position[0] - 30, self.position[1] - 30, 60, 60)
 
@@ -230,7 +271,6 @@ class Door:
     pass
 
 def draw():
-    global hero
     window.fill((0, 0, 0))
     hero.Draw()
 
@@ -248,7 +288,7 @@ def main():
     resolution = (800, 600)
     window = pygame.display.set_mode(resolution)
     hero = Player([resolution[0] / 2, resolution[1] / 2], 0.2)
-    enemies = [Enemy([0, 0], 10, speed=0.1)]
+    enemies = [Enemy([200, 200], 1, speed=0.1)]
 
     entities = [hero] + enemies
 
