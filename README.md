@@ -1,23 +1,11 @@
-    def Move(self):
-        direction = [1, -1]
-        currentKey = pygame.key.get_pressed()
-
-        if currentKey[pygame.K_w]:
-            self.position[1] -= self.speed
-            direction = [1, -1]
-
-        if currentKey[pygame.K_a]:
-            self.position[0] -= self.speed
-            direction = [0, -1]
-
-        if currentKey[pygame.K_s]:
-            self.position[1] += self.speed
-            direction = [1, 1]
-
-        if currentKey[pygame.K_d]:
-            self.position[0] += self.speed
-            direction = [0, 1]
-
-        if currentKey[pygame.KMOD_SHIFT]:
-            self.position[direction[0]] += direction[1] * 2 * self.speed
-
+<!TO DO!>:
+1) class Item:
+    на 'e' взаимодействие, есть описание, взять/не взять
+    изменяет либо тип снарядов(=> добавить типы пулей в class Bullets),
+    либо добавляет абилки => написать класс abilities
+2) class Location:
+    случайная генерация из набора мобов, блоков, предметов, ловушек и тд
+    написать class Door, реализовать переход между локами
+3) class Npc:
+    для магазинов, возможно для лора
+4) далее добалять больше мобов, предметов, боссов лок и тд и тп
