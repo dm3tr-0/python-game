@@ -1,14 +1,10 @@
-import pygame
-import os
-import sys
-import time
-import math
-import random
-import threading
+import pygame, os, sys, time, math, random, threading
 
 sys.setrecursionlimit(int(1e9))
 
+#скорость
 SPEED_ = 500
+#направление в зависимости от зажатых клавиш wasd
 worldSides = {
     "w" : 270,
     "a" : 180,
@@ -19,44 +15,49 @@ worldSides = {
     "as" : 135,
     "ds" : 45
 }
+
+DEGREES = [ 0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330, 360 ]
+
+#константа корень из двух
 sqrtTwo = (2 ** 0.5)
 
+#перемещение спрайта  заданом направлении
 def DegreeToMove(direction, entity):
     if type(entity) != Bullet:
         if direction == 0:
             if entity.position[0] + entity.speed < resolution[0]:
                 entity.position[0] += entity.speed
-
+    
         elif direction == 45:
             if entity.position[0] + entity.speed < resolution[0]:
                 entity.position[0] += entity.speed / sqrtTwo
             if entity.position[1] + entity.speed < resolution[1]:
                 entity.position[1] += entity.speed / sqrtTwo
-
+    
         elif direction == 90:
             if entity.position[1] + entity.speed < resolution[1]:
                 entity.position[1] += entity.speed
-
+    
         elif direction == 135:
             if entity.position[0] - entity.speed > 0:
                 entity.position[0] -= entity.speed / sqrtTwo
             if entity.position[1] + entity.speed < resolution[1]:
                 entity.position[1] += entity.speed / sqrtTwo
-
+    
         elif direction == 180:
             if entity.position[0] - entity.speed > 0:
                 entity.position[0] -= entity.speed
-
+    
         elif direction == 225:
             if entity.position[0] - entity.speed > 0:
                 entity.position[0] -= entity.speed / sqrtTwo
             if entity.position[1] - entity.speed > 0:
                 entity.position[1] -= entity.speed / sqrtTwo
-
+    
         elif direction == 270:
             if entity.position[1] - entity.speed > 0:
                 entity.position[1] -= entity.speed
-
+    
         elif direction == 315:
             if entity.position[0] + entity.speed < resolution[0]:
                 entity.position[0] += entity.speed / sqrtTwo
@@ -67,31 +68,99 @@ def DegreeToMove(direction, entity):
         if direction == 0:
             entity.position[0] += entity.speed
 
+        # elif direction == 15:
+        #     entity.position[0] += entity.speed / sqrtTwo
+        #     entity.position[1] += entity.speed / sqrtTwo
+
+        elif direction == 30:
+            entity.position[0] += entity.speed / ((3 / 2) ** 0.5)
+            entity.position[1] += entity.speed / (3 ** 0.5)
+
         elif direction == 45:
             entity.position[0] += entity.speed / sqrtTwo
             entity.position[1] += entity.speed / sqrtTwo
 
+        elif direction == 60:
+            entity.position[0] += entity.speed / (3 ** 0.5)
+            entity.position[1] += entity.speed / ((3 / 2) ** 0.5)
+
+        # elif direction == 75:
+        #     entity.position[0] += entity.speed / sqrtTwo
+        #     entity.position[1] += entity.speed / sqrtTwo
+
         elif direction == 90:
             entity.position[1] += entity.speed
+
+        # elif direction == 105:
+        #     entity.position[0] -= entity.speed / sqrtTwo
+        #     entity.position[1] += entity.speed / sqrtTwo
+
+        elif direction == 120:
+            entity.position[0] -= entity.speed / (3 ** 0.5)
+            entity.position[1] += entity.speed / ((3 / 2) ** 0.5)
 
         elif direction == 135:
             entity.position[0] -= entity.speed / sqrtTwo
             entity.position[1] += entity.speed / sqrtTwo
 
+        elif direction == 150:
+            entity.position[0] -= entity.speed / ((3 / 2) ** 0.5)
+            entity.position[1] += entity.speed / (3 ** 0.5)
+
+        # elif direction == 165:
+        #     entity.position[0] -= entity.speed / sqrtTwo
+        #     entity.position[1] += entity.speed / sqrtTwo
+
         elif direction == 180:
             entity.position[0] -= entity.speed
+
+        # elif direction == 195:
+        #     entity.position[0] -= entity.speed / sqrtTwo
+        #     entity.position[1] -= entity.speed / sqrtTwo
+
+        elif direction == 210:
+            entity.position[0] -= entity.speed / ((3 / 2) ** 0.5)
+            entity.position[1] -= entity.speed / (3 ** 0.5)
 
         elif direction == 225:
             entity.position[0] -= entity.speed / sqrtTwo
             entity.position[1] -= entity.speed / sqrtTwo
 
+        elif direction == 240:
+            entity.position[0] -= entity.speed / (3 ** 0.5)
+            entity.position[1] -= entity.speed / ((3 / 2) ** 0.5)
+
+        # elif direction == 255:
+        #     entity.position[0] -= entity.speed / sqrtTwo
+        #     entity.position[1] -= entity.speed / sqrtTwo
+
         elif direction == 270:
             entity.position[1] -= entity.speed
+
+        # elif direction == 285:
+        #     entity.position[0] += entity.speed / sqrtTwo
+        #     entity.position[1] -= entity.speed / sqrtTwo
+
+        elif direction == 300:
+            entity.position[0] += entity.speed / (3 ** 0.5)
+            entity.position[1] -= entity.speed / ((3 / 2) ** 0.5)
 
         elif direction == 315:
             entity.position[0] += entity.speed / sqrtTwo
             entity.position[1] -= entity.speed / sqrtTwo
 
+        elif direction == 330:
+            entity.position[0] += entity.speed / ((3 / 2) ** 0.5)
+            entity.position[1] -= entity.speed / (3 ** 0.5)
+
+        # elif direction == 345:
+        #     entity.position[0] += entity.speed / sqrtTwo
+        #     entity.position[1] -= entity.speed / sqrtTwo
+
+        elif direction == 360:
+            entity.position[0] += entity.speed
+
+#класс пулей
 class Bullet:
     def __init__(self, speed, isVisible, color=(200, 0, 0), bulletType="p_common"):
         self.position = None
@@ -139,7 +208,7 @@ class Bullet:
                         self.position = None
                         return
 
-                    elif type(entity) == Enemy and self.bulletType[0] == "p":
+                    elif type(entity) in (Enemy, Minion) and self.bulletType[0] == "p":
                         entity.health -= self.damage
                         self.isVisible = False
                         self.direction = None
@@ -236,6 +305,9 @@ class Player:
                     bullet.MakeVisible(self.position, self.direction)
                     break
 
+    def isVisible(self, position):
+        return True
+
 class Enemy:
     def __init__(self, position, health, speed, bulletType ="e_common"):
         self.position = position
@@ -245,7 +317,7 @@ class Enemy:
         self.lastMove = 0
         self.health = health
         self.speed = speed
-        bullet = Bullet(0.5, False, bulletType=bulletType)
+        # self.bullet = [Bullet(0.5, False, bulletType=bulletType)]
 
     def Move(self):
         if (time.time() - self.lastMove >= 2):
@@ -261,6 +333,39 @@ class Enemy:
     def isAlive(self):
         return self.health > 0
 
+    def Shoot(self):
+        pass
+
+class Minion(Enemy):
+    def __init__(self, position, health, speed, bulletType="e_common"):
+        Enemy.__init__(self, position, health, speed, bulletType)
+        self.bullets = [Bullet(0.2, False, color=(0, 200, 0), bulletType=bulletType)]
+
+    def Shoot(self):
+        if hero.isVisible(self.position):
+            direction = None
+            x0, y0 = self.position[0], self.position[1]
+            x, y = hero.position[0], hero.position[1]
+            if (x == x0):
+                if (y > y0):
+                    direction = 270
+                else:
+                    direction = 90
+            else:
+                direction = math.degrees(math.atan2( (y - y0), (x - x0) ))
+                if direction < 0:
+                    direction += 360
+                closestDeg = DEGREES[0]
+                minDiff = abs(DEGREES[0] - direction)
+                for deg in DEGREES:
+                    diff = abs(deg - direction)
+                    if diff < minDiff:
+                        minDiff = diff
+                        closestDeg = deg
+                direction = closestDeg
+
+            self.bullets[0].MakeVisible(self.position, direction)
+
 class Location:
     pass
 
@@ -272,13 +377,13 @@ class Door:
 
 def draw():
     window.fill((0, 0, 0))
-    hero.Draw()
 
-    for bullet in hero.bullets:
-        bullet.DrawBullet()
+    for entity in entities:
+        for bullet in entity.bullets:
+            bullet.DrawBullet()
 
-    for enemy in enemies:
-        enemy.Draw()
+    for entity in entities:
+        entity.Draw()
 
     pygame.display.update()
 
@@ -287,8 +392,10 @@ def main():
     pygame.init()
     resolution = (800, 600)
     window = pygame.display.set_mode(resolution)
+    pygame.display.set_caption("")
+    # pygame.display.set_icon("")
     hero = Player([resolution[0] / 2, resolution[1] / 2], 0.2)
-    enemies = [Enemy([200, 200], 1, speed=0.1)]
+    enemies = [Minion([200, 200], 1, speed=0.1)]
 
     entities = [hero] + enemies
 
@@ -297,13 +404,16 @@ def main():
     while not gameOver:
         draw()
         hero.Move()
-        for bullet in hero.bullets:
-            bullet.MoveBullet()
-            bullet.BulletColidepoint()
+
+        for entity in entities:
+            for bullet in entity.bullets:
+                bullet.MoveBullet()
+                bullet.BulletColidepoint()
 
         for enemy in enemies:
             if enemy.isAlive():
                 enemy.Move()
+                enemy.Shoot()
             else:
                 enemies.remove(enemy)
                 entities.remove(enemy)
