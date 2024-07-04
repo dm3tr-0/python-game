@@ -68,10 +68,6 @@ def DegreeToMove(direction, entity):
         if direction == 0:
             entity.position[0] += entity.speed
 
-        # elif direction == 15:
-        #     entity.position[0] += entity.speed / sqrtTwo
-        #     entity.position[1] += entity.speed / sqrtTwo
-
         elif direction == 30:
             entity.position[0] += entity.speed / ((3 / 2) ** 0.5)
             entity.position[1] += entity.speed / (3 ** 0.5)
@@ -84,16 +80,8 @@ def DegreeToMove(direction, entity):
             entity.position[0] += entity.speed / (3 ** 0.5)
             entity.position[1] += entity.speed / ((3 / 2) ** 0.5)
 
-        # elif direction == 75:
-        #     entity.position[0] += entity.speed / sqrtTwo
-        #     entity.position[1] += entity.speed / sqrtTwo
-
         elif direction == 90:
             entity.position[1] += entity.speed
-
-        # elif direction == 105:
-        #     entity.position[0] -= entity.speed / sqrtTwo
-        #     entity.position[1] += entity.speed / sqrtTwo
 
         elif direction == 120:
             entity.position[0] -= entity.speed / (3 ** 0.5)
@@ -107,16 +95,8 @@ def DegreeToMove(direction, entity):
             entity.position[0] -= entity.speed / ((3 / 2) ** 0.5)
             entity.position[1] += entity.speed / (3 ** 0.5)
 
-        # elif direction == 165:
-        #     entity.position[0] -= entity.speed / sqrtTwo
-        #     entity.position[1] += entity.speed / sqrtTwo
-
         elif direction == 180:
             entity.position[0] -= entity.speed
-
-        # elif direction == 195:
-        #     entity.position[0] -= entity.speed / sqrtTwo
-        #     entity.position[1] -= entity.speed / sqrtTwo
 
         elif direction == 210:
             entity.position[0] -= entity.speed / ((3 / 2) ** 0.5)
@@ -130,16 +110,8 @@ def DegreeToMove(direction, entity):
             entity.position[0] -= entity.speed / (3 ** 0.5)
             entity.position[1] -= entity.speed / ((3 / 2) ** 0.5)
 
-        # elif direction == 255:
-        #     entity.position[0] -= entity.speed / sqrtTwo
-        #     entity.position[1] -= entity.speed / sqrtTwo
-
         elif direction == 270:
             entity.position[1] -= entity.speed
-
-        # elif direction == 285:
-        #     entity.position[0] += entity.speed / sqrtTwo
-        #     entity.position[1] -= entity.speed / sqrtTwo
 
         elif direction == 300:
             entity.position[0] += entity.speed / (3 ** 0.5)
@@ -152,10 +124,6 @@ def DegreeToMove(direction, entity):
         elif direction == 330:
             entity.position[0] += entity.speed / ((3 / 2) ** 0.5)
             entity.position[1] -= entity.speed / (3 ** 0.5)
-
-        # elif direction == 345:
-        #     entity.position[0] += entity.speed / sqrtTwo
-        #     entity.position[1] -= entity.speed / sqrtTwo
 
         elif direction == 360:
             entity.position[0] += entity.speed
@@ -317,7 +285,6 @@ class Enemy:
         self.lastMove = 0
         self.health = health
         self.speed = speed
-        # self.bullet = [Bullet(0.5, False, bulletType=bulletType)]
 
     def Move(self):
         if (time.time() - self.lastMove >= 2):
