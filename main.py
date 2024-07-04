@@ -22,37 +22,63 @@ class Player:
         )
 
     def Move(self):
-        direction = [1, -1]
-
+        currentDirection = ""
         currentKey = pygame.key.get_pressed()
         isShift = pygame.key.get_mods() & pygame.KMOD_SHIFT
 
         if currentKey[pygame.K_w]:
             if self.position[1] - self.speed >= 0:
+                currentDirection += "w"
                 self.position[1] -= self.speed
-                direction = [1, -1]
-
-        if currentKey[pygame.K_a]:
-            if self.position[0] - self.speed >= 0:
-                self.position[0] -= self.speed
-                direction = [0, -1]
 
         if currentKey[pygame.K_s]:
             if self.position[1] + self.speed <= resolution[1]:
+                idx = currentDirection.find("w")
+                if idx == -1:
+                    currentDirection += "s"
+                else:
+                    currentDirection = currentDirection.replace("w", "")
                 self.position[1] += self.speed
-                direction = [1, 1]
+
+        if currentKey[pygame.K_a]:
+            if self.position[0] - self.speed >= 0:
+                currentDirection += "a"
+                self.position[0] -= self.speed
 
         if currentKey[pygame.K_d]:
             if self.position[0] + self.speed <= resolution[0]:
+                idx = currentDirection.find("a")
+                if idx == -1:
+                    currentDirection += "d"
+                else:
+                    currentDirection = currentDirection.replace("a", "")
                 self.position[0] += self.speed
-                direction = [0, 1]
 
         if isShift:
-            self.position[direction[0]] += direction[1] * 10 * self.speed
+            if len(currentDirection) == 2:
+                if currentDirection[0] == "w":
+                    self.position[1] -= 7 * self.speed
+                else:
+                    self.position[1] += 7 * self.speed
+
+                if (currentDirection[1] == "a"):
+                    self.position[0] -= 7 * self.speed
+                else:
+                    self.position[0] += 7 * self.speed
+
+            elif len(currentDirection) == 1:
+                if currentDirection[0] == "w":
+                    self.position[1] -= 10 * self.speed
+                elif currentDirection[0] == "s":
+                    self.position[1] += 10 * self.speed
+
+                elif (currentDirection[0] == "a"):
+                    self.position[0] -= 10 * self.speed
+                else:
+                    self.position[0] += 10 * self.speed
 
     def Usecase(self, mouseKey):
         pass
-    pass
 
 class Enemies:
     pass
