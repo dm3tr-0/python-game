@@ -161,8 +161,7 @@ class Bullet:
             self.direction = direction
 
     # simple version
-    def BulletColidepoint(self):
-        global entities
+    def BulletColidepoint(self, entities):
         if self.isVisible:
             if self.position[0] < 0 or self.position[0] > resolution[0] \
                     or self.position[1] < 0 or self.position[1] > resolution[1]:
@@ -342,7 +341,7 @@ class Minion(Enemy):
 
 def RandomLocation():
     global locationsBuffer
-    tempLocation = random.choice(locationsBuffer)
+    tempLocation = locationsBuffer[0]
     locationsBuffer.remove(tempLocation)
     print('change')
     return tempLocation
@@ -360,11 +359,12 @@ class Location:
             for element in range(random.randint(1, 3)):
                 tempChoice = random.choice("awd")
                 if tempChoice == "a":
-                    self.doors += [Door([0, resolution[1] / 2])]
+                    self.doors += [Door([0, resolution[1] / 2], 1)]
                 elif tempChoice == "w":
-                    self.doors += [Door([resolution[0] / 2, 0])]
+                    self.doors += [Door([resolution[0] / 2, 0], 2)]
                 else:
-                    self.doors += [Door([resolution[0], resolution[1] / 2])]
+                    self.doors += [Door([resolution[0], resolution[1] / 2], 3)]
+
             for door in self.doors:
                 door.MakeVisible()
 
@@ -388,7 +388,7 @@ class Location:
         for entity in self.entities:
             for bullet in entity.bullets:
                 bullet.MoveBullet()
-                bullet.BulletColidepoint()
+                bullet.BulletColidepoint(self.entities)
 
             if type(entity) in (Enemy, Minion):
                 if entity.isAlive():
@@ -396,7 +396,8 @@ class Location:
                     entity.Shoot()
                 else:
                     self.entities.remove(entity)
-        if len(self.entities) == 1:
+
+        if len(self.entities) <= 1:
             self.MakeDoors()
 
         for door in self.doors:
@@ -404,9 +405,10 @@ class Location:
 
 # класс дверей
 class Door:
-    def __init__(self, position, texture=None, isVisible=False):
+    def __init__(self, position, side, texture=None, isVisible=False):
         self.texture = texture
         self.position = position
+        self.side = side
         self.isVisible = isVisible # видна ли дверь
         self.hitbox = pygame.rect.Rect(self.position[0] - 50, self.position[1] - 50, 100, 100)
 
@@ -424,21 +426,29 @@ class Door:
             self.isVisible = True
 
     def PlayerCollidepoint(self):
-        global currentLocation
+        global changeLocation
         if self.isVisible and self.hitbox.collidepoint(hero.position[0], hero.position[1]):
             self.isVisible = False
-            currentLocation = RandomLocation()
-
+            changeLocation = self.side
 
 class Item:
     pass
+
+def UpdateLocations():
+    global locationsBuffer
+    enemies1 = [Minion([200, 200], 1, speed=0.1)]
+    enemies2 = [Minion([200, 200], 1, speed=0.1), Minion([400, 400], 1, speed=0.1)]
+    enemies3 = [Minion([200, 200], 1, speed=0.1), Minion([400, 400], 1, speed=0.1), Minion([300, 300], 1, speed=0.1)]
+    locationsBuffer = [Location([1], entities=enemies1, color=(0, 200, 200)),
+                        Location([1], entities=enemies2, color=(0, 0, 200)),
+                        Location([1], entities=enemies3, color=(100, 100, 200))]
 
 def draw():
     currentlocation.Draw()
     pygame.display.update()
 
 def main():
-    global hero, window, gameOver, resolution, enemies, entities, currentlocation, locationsBuffer
+    global hero, window, gameOver, resolution, enemies, changeLocation, currentlocation, locationsBuffer
     pygame.init()
     resolution = (800, 600)
     window = pygame.display.set_mode(resolution)
@@ -446,12 +456,9 @@ def main():
     # pygame.display.set_icon("")
     hero = Player([resolution[0] / 2, resolution[1] / 2], 0.2)
     enemies = [Minion([200, 200], 1, speed=0.1)]
-    entities = enemies
-
-    #currentlocation = Location([1], entities=entities.copy(), color =(100,100,100))
-    locationsBuffer.append(Location([1], entities=entities.copy(), color =(100,100,100)))
-    locationsBuffer.append(Location([1], entities=entities.copy(), color=(0, 0, 200)))
-    currentlocation = locationsBuffer[0]
+    currentlocation = Location([1], entities=enemies, color =(100,100,100))
+    UpdateLocations()
+    changeLocation = 0
 
     gameOver = False
 
@@ -459,8 +466,13 @@ def main():
 
         draw()
         hero.Move()
-        currentlocation = locationsBuffer[0]
         currentlocation.LocationEvents()
+
+        if changeLocation:
+            currentlocation = locationsBuffer[changeLocation - 1]
+            changeLocation = 0
+            UpdateLocations()
+            hero.position = [resolution[0] / 2, resolution[1]]
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
