@@ -2,62 +2,65 @@ import pygame, os, sys, time, math, random, threading
 
 sys.setrecursionlimit(int(1e9))
 
-#скорость
+# скорость
 SPEED_ = 500
-#направление в зависимости от зажатых клавиш wasd
+# направление в зависимости от зажатых клавиш wasd
 worldSides = {
-    "w" : 270,
-    "a" : 180,
-    "s" : 90,
-    "d" : 0,
-    "aw" : 225,
-    "dw" : 315,
-    "as" : 135,
-    "ds" : 45
+    "w": 270,
+    "a": 180,
+    "s": 90,
+    "d": 0,
+    "aw": 225,
+    "dw": 315,
+    "as": 135,
+    "ds": 45
 }
 
-DEGREES = [ 0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330, 360 ]
+locationsBuffer = []
 
-#константа корень из двух
+DEGREES = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330, 360]
+
+# константа корень из двух
 sqrtTwo = (2 ** 0.5)
 
-#перемещение спрайта  заданом направлении
+
+# перемещение спрайта  заданом направлении
 def DegreeToMove(direction, entity):
     if type(entity) != Bullet:
         if direction == 0:
             if entity.position[0] + entity.speed < resolution[0]:
                 entity.position[0] += entity.speed
-    
+
         elif direction == 45:
             if entity.position[0] + entity.speed < resolution[0]:
                 entity.position[0] += entity.speed / sqrtTwo
             if entity.position[1] + entity.speed < resolution[1]:
                 entity.position[1] += entity.speed / sqrtTwo
-    
+
         elif direction == 90:
             if entity.position[1] + entity.speed < resolution[1]:
                 entity.position[1] += entity.speed
-    
+
         elif direction == 135:
             if entity.position[0] - entity.speed > 0:
                 entity.position[0] -= entity.speed / sqrtTwo
             if entity.position[1] + entity.speed < resolution[1]:
                 entity.position[1] += entity.speed / sqrtTwo
-    
+
         elif direction == 180:
             if entity.position[0] - entity.speed > 0:
                 entity.position[0] -= entity.speed
-    
+
         elif direction == 225:
             if entity.position[0] - entity.speed > 0:
                 entity.position[0] -= entity.speed / sqrtTwo
             if entity.position[1] - entity.speed > 0:
                 entity.position[1] -= entity.speed / sqrtTwo
-    
+
         elif direction == 270:
             if entity.position[1] - entity.speed > 0:
                 entity.position[1] -= entity.speed
-    
+
         elif direction == 315:
             if entity.position[0] + entity.speed < resolution[0]:
                 entity.position[0] += entity.speed / sqrtTwo
@@ -128,7 +131,8 @@ def DegreeToMove(direction, entity):
         elif direction == 360:
             entity.position[0] += entity.speed
 
-#класс пулей
+
+# класс пулей
 class Bullet:
     def __init__(self, speed, isVisible, color=(200, 0, 0), bulletType="p_common"):
         self.position = None
@@ -161,7 +165,7 @@ class Bullet:
         global entities
         if self.isVisible:
             if self.position[0] < 0 or self.position[0] > resolution[0] \
-                or self.position[1] < 0 or self.position[1] > resolution[1]:
+                    or self.position[1] < 0 or self.position[1] > resolution[1]:
                 self.isVisible = False
                 self.direction = None
                 self.position = None
@@ -183,8 +187,9 @@ class Bullet:
                         self.position = None
                         return
 
+
 class Player:
-    def __init__(self, position, speed, health = 10):
+    def __init__(self, position, speed, health=10):
         self.health = health
 
         self.position = position
@@ -198,10 +203,10 @@ class Player:
     def Draw(self):
         global window
         pygame.draw.circle(
-            surface = window,
-            color = (200,0,0),
-            center = self.position,
-            radius = 30
+            surface=window,
+            color=(200, 0, 0),
+            center=self.position,
+            radius=30
         )
 
     def Move(self):
@@ -246,23 +251,23 @@ class Player:
                 if currentDirection[0] == "w":
                     self.position[1] -= min(SPEED_ / sqrtTwo * self.speed, self.position[1])
                 else:
-                    self.position[1] += min(SPEED_ / sqrtTwo * self.speed, resolution[1]-self.position[1])
+                    self.position[1] += min(SPEED_ / sqrtTwo * self.speed, resolution[1] - self.position[1])
 
                 if (currentDirection[1] == "a"):
                     self.position[0] -= min(SPEED_ / sqrtTwo * self.speed, self.position[0])
                 else:
-                    self.position[0] += min(SPEED_ / sqrtTwo * self.speed, resolution[0]-self.position[0])
+                    self.position[0] += min(SPEED_ / sqrtTwo * self.speed, resolution[0] - self.position[0])
 
             elif len(currentDirection) == 1:
                 if currentDirection[0] == "w":
                     self.position[1] -= min(SPEED_ * self.speed, self.position[1])
                 elif currentDirection[0] == "s":
-                    self.position[1] += min(SPEED_ * self.speed, resolution[1]-self.position[1])
+                    self.position[1] += min(SPEED_ * self.speed, resolution[1] - self.position[1])
 
                 elif (currentDirection[0] == "a"):
                     self.position[0] -= min(SPEED_ * self.speed, self.position[0])
                 else:
-                    self.position[0] += min(SPEED_ * self.speed, resolution[0]-self.position[0])
+                    self.position[0] += min(SPEED_ * self.speed, resolution[0] - self.position[0])
 
         self.hitbox = pygame.rect.Rect(self.position[0] - 30, self.position[1] - 30, 60, 60)
 
@@ -276,8 +281,9 @@ class Player:
     def isVisible(self, position):
         return True
 
+
 class Enemy:
-    def __init__(self, position, health, speed, bulletType ="e_common"):
+    def __init__(self, position, health, speed, bulletType="e_common"):
         self.position = position
         self.direction = random.randint(0, 7) * 45
         self.hitbox = pygame.rect.Rect(self.position[0] - 20, self.position[1] - 20, 40, 40)
@@ -303,6 +309,7 @@ class Enemy:
     def Shoot(self):
         pass
 
+
 class Minion(Enemy):
     def __init__(self, position, health, speed, bulletType="e_common"):
         Enemy.__init__(self, position, health, speed, bulletType)
@@ -319,7 +326,7 @@ class Minion(Enemy):
                 else:
                     direction = 90
             else:
-                direction = math.degrees(math.atan2( (y - y0), (x - x0) ))
+                direction = math.degrees(math.atan2((y - y0), (x - x0)))
                 if direction < 0:
                     direction += 360
                 closestDeg = DEGREES[0]
@@ -333,29 +340,105 @@ class Minion(Enemy):
 
             self.bullets[0].MakeVisible(self.position, direction)
 
+def RandomLocation():
+    global locationsBuffer
+    tempLocation = random.choice(locationsBuffer)
+    locationsBuffer.remove(tempLocation)
+    print('change')
+    return tempLocation
+
 class Location:
-    pass
+    def __init__(self, objects=[], texture=None, entities=[], color=(0,0,0)):
+        self.obiects = objects
+        self.texture = texture
+        self.doors = []
+        self.entities = [hero] + entities
+        self.color = color
+
+    def MakeDoors(self):
+        if len(self.doors) == 0:
+            for element in range(random.randint(1, 3)):
+                tempChoice = random.choice("awd")
+                if tempChoice == "a":
+                    self.doors += [Door([0, resolution[1] / 2])]
+                elif tempChoice == "w":
+                    self.doors += [Door([resolution[0] / 2, 0])]
+                else:
+                    self.doors += [Door([resolution[0], resolution[1] / 2])]
+            for door in self.doors:
+                door.MakeVisible()
+
+
+    def Draw(self):
+        if self.texture != None:
+            window.blit(self.texture, (0, 0))
+
+        else:
+            window.fill(self.color)
+
+        for door in self.doors:
+            door.Draw()
+
+        for entity in self.entities:
+            for bullet in entity.bullets:
+                bullet.DrawBullet()
+            entity.Draw()
+
+    def LocationEvents(self):
+        for entity in self.entities:
+            for bullet in entity.bullets:
+                bullet.MoveBullet()
+                bullet.BulletColidepoint()
+
+            if type(entity) in (Enemy, Minion):
+                if entity.isAlive():
+                    entity.Move()
+                    entity.Shoot()
+                else:
+                    self.entities.remove(entity)
+        if len(self.entities) == 1:
+            self.MakeDoors()
+
+        for door in self.doors:
+            door.PlayerCollidepoint()
+
+# класс дверей
+class Door:
+    def __init__(self, position, texture=None, isVisible=False):
+        self.texture = texture
+        self.position = position
+        self.isVisible = isVisible # видна ли дверь
+        self.hitbox = pygame.rect.Rect(self.position[0] - 50, self.position[1] - 50, 100, 100)
+
+    # отрисовка текстуры двери
+    def Draw(self):
+        if self.isVisible:
+            if self.texture != None:
+                window.blit(self.texture, self.position)
+
+            else:
+                pygame.draw.circle(window, (200, 200, 200), self.position, 50)
+
+    def MakeVisible(self):
+        if not self.isVisible:
+            self.isVisible = True
+
+    def PlayerCollidepoint(self):
+        global currentLocation
+        if self.isVisible and self.hitbox.collidepoint(hero.position[0], hero.position[1]):
+            self.isVisible = False
+            currentLocation = RandomLocation()
+
 
 class Item:
     pass
 
-class Door:
-    pass
-
 def draw():
-    window.fill((0, 0, 0))
-
-    for entity in entities:
-        for bullet in entity.bullets:
-            bullet.DrawBullet()
-
-    for entity in entities:
-        entity.Draw()
-
+    currentlocation.Draw()
     pygame.display.update()
 
 def main():
-    global hero, window, gameOver, resolution, enemies, entities
+    global hero, window, gameOver, resolution, enemies, entities, currentlocation, locationsBuffer
     pygame.init()
     resolution = (800, 600)
     window = pygame.display.set_mode(resolution)
@@ -363,27 +446,21 @@ def main():
     # pygame.display.set_icon("")
     hero = Player([resolution[0] / 2, resolution[1] / 2], 0.2)
     enemies = [Minion([200, 200], 1, speed=0.1)]
+    entities = enemies
 
-    entities = [hero] + enemies
+    #currentlocation = Location([1], entities=entities.copy(), color =(100,100,100))
+    locationsBuffer.append(Location([1], entities=entities.copy(), color =(100,100,100)))
+    locationsBuffer.append(Location([1], entities=entities.copy(), color=(0, 0, 200)))
+    currentlocation = locationsBuffer[0]
 
     gameOver = False
 
     while not gameOver:
+
         draw()
         hero.Move()
-
-        for entity in entities:
-            for bullet in entity.bullets:
-                bullet.MoveBullet()
-                bullet.BulletColidepoint()
-
-        for enemy in enemies:
-            if enemy.isAlive():
-                enemy.Move()
-                enemy.Shoot()
-            else:
-                enemies.remove(enemy)
-                entities.remove(enemy)
+        currentlocation = locationsBuffer[0]
+        currentlocation.LocationEvents()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -398,6 +475,7 @@ def main():
                     break
 
     pygame.quit()
+
 
 if __name__ == '__main__':
     mainGame = threading.Thread(target=main)
