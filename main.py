@@ -436,9 +436,9 @@ class Item:
 
 def UpdateLocations():
     global locationsBuffer
-    enemies1 = [Minion([200, 200], 1, speed=0.1)]
-    enemies2 = [Minion([200, 200], 1, speed=0.1), Minion([400, 400], 1, speed=0.1)]
-    enemies3 = [Minion([200, 200], 1, speed=0.1), Minion([400, 400], 1, speed=0.1), Minion([300, 300], 1, speed=0.1)]
+    enemies1 = [Minion([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=0.1) for i in range(random.randint(1, 3))]
+    enemies2 = [Minion([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=0.1) for i in range(random.randint(1, 3))]
+    enemies3 = [Minion([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=0.1) for i in range(random.randint(1, 3))]
     locationsBuffer = [Location([1], entities=enemies1, color=(0, 200, 200)),
                         Location([1], entities=enemies2, color=(0, 0, 200)),
                         Location([1], entities=enemies3, color=(100, 100, 200))]
