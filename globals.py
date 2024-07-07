@@ -1,0 +1,3 @@
+
+window = None
+hero = None

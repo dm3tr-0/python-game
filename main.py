@@ -1,9 +1,11 @@
 import pygame, random, time, threading
-from settings import *
+from settings import FrameRate, playerBulletSpeed, playerSpeed, enemyBulletSpeed, enemySpeed, shiftSpeed, worldSides, locationsBuffer,DEGREES, sqrtTwo, resolution
 from entities.player import Player
 from entities.enemy import Enemy, Minion
 from environment.objects import Objects
 from environment.location import Location
+from environment.location import Location
+import globals
 
 def UpdateLocations():
 
@@ -19,13 +21,14 @@ def draw():
     pygame.display.update()
 
 def main():
+    global currentlocation
     pygame.init()
     resolution = (800, 600)
-    window = pygame.display.set_mode(resolution)
+    globals.window = pygame.display.set_mode(resolution)
     pygame.display.set_caption("")
     clock = pygame.time.Clock()
     # pygame.display.set_icon("")
-    hero = Player([resolution[0] / 2, resolution[1] / 2], playerSpeed)
+    globals.hero = Player([resolution[0] / 2, resolution[1] / 2], playerSpeed)
     enemies = [Minion([200, 200], 1, speed=enemySpeed)]
     currentlocation = Location([Objects([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies, color =(100,100,100))
     UpdateLocations()
@@ -37,28 +40,28 @@ def main():
         clock.tick(FrameRate)
 
         draw()
-        hero.Move()
+        globals.hero.Move()
         currentlocation.LocationEvents()
 
         if changeLocation:
             currentlocation = locationsBuffer[changeLocation - 1]
             changeLocation = 0
             UpdateLocations()
-            hero.position = [resolution[0] / 2, resolution[1]]
+            globals.hero.position = [resolution[0] / 2, resolution[1]]
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameOver = True
                 break
             if event.type == pygame.MOUSEBUTTONDOWN:
-                hero.Usecase(event.button)
+                globals.hero.Usecase(event.button)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     gameOver = True
                     break
                 if event.key == pygame.K_DOWN:
-                    hero.Usecase(1)
+                    globals.hero.Usecase(1)
 
     pygame.quit()
 

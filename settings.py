@@ -1,5 +1,4 @@
 import pygame
-from entities.enemy import Enemy, Minion
 # скорость
 FrameRate = 120
 playerSpeed = int(150 / FrameRate * 10) / 10
@@ -24,4 +23,3 @@ locationsBuffer = []
 DEGREES = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330, 360]
 sqrtTwo = (2 ** 0.5)
 resolution = (800, 600)
-enemyClasses = (Enemy, Minion)
