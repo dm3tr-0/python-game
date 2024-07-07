@@ -7,12 +7,12 @@ sys.setrecursionlimit(int(1e9))
 
 def UpdateLocations():
     global locationsBuffer
-    enemies1 = [Minion([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=enemySpeed) for i in range(random.randint(1, 3))]
-    enemies2 = [Minion([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=enemySpeed) for i in range(random.randint(1, 3))]
-    enemies3 = [Minion([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=enemySpeed) for i in range(random.randint(1, 3))]
-    locationsBuffer = [Location(hero, [Objects([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies1, color=(0, 200, 200)),
-                        Location(hero, [Objects([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies2, color=(0, 0, 200)),
-                        Location(hero, [Objects([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies3, color=(100, 100, 200))]
+    enemies1 = [Minion(window, [random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=enemySpeed) for i in range(random.randint(1, 3))]
+    enemies2 = [Minion(window,[random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=enemySpeed) for i in range(random.randint(1, 3))]
+    enemies3 = [Minion(window,[random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=enemySpeed) for i in range(random.randint(1, 3))]
+    locationsBuffer = [Location(window,hero, [Objects(window,[random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies1, color=(0, 200, 200)),
+                        Location(window,hero, [Objects(window,[random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies2, color=(0, 0, 200)),
+                        Location(window,hero, [Objects(window,[random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies3, color=(100, 100, 200))]
 
 def draw():
     currentlocation.Draw()
@@ -20,12 +20,16 @@ def draw():
 
 def main():
     global hero, window, gameOver, resolution, enemies, changeLocation, currentlocation, locationsBuffer
+    pygame.init()
+    window = pygame.display.set_mode(resolution)
+    pygame.display.set_caption("")
+    clock = pygame.time.Clock()
     # pygame.display.set_icon("")
-    hero = Player([resolution[0] / 2, resolution[1] / 2], playerSpeed)
-    enemies = [Minion([200, 200], 1, speed=enemySpeed)]
-    currentlocation = Location(hero, [Objects([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies, color =(100,100,100))
+    hero = Player(window, [resolution[0] / 2, resolution[1] / 2], playerSpeed)
+    enemies = [Minion(window, [200, 200], 1, speed=enemySpeed)]
+    currentlocation = Location(window, hero, [Objects(window,[random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies, color =(100,100,100))
     UpdateLocations()
-    changeLocation = 0
+    changeLocation = None
 
     gameOver = False
 
@@ -34,11 +38,11 @@ def main():
 
         draw()
         hero.Move()
-        currentlocation.LocationEvents()
+        changeLocation = currentlocation.LocationEvents()
 
-        if changeLocation:
+        if changeLocation != None:
             currentlocation = locationsBuffer[changeLocation - 1]
-            changeLocation = 0
+            changeLocation = None
             UpdateLocations()
             hero.position = [resolution[0] / 2, resolution[1]]
 
