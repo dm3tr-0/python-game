@@ -4,7 +4,8 @@ from utils import *
 
 # класс пулей
 class Bullet:
-    def __init__(self, speed, isVisible, color=(200, 0, 0), bulletType="p_common"):
+    def __init__(self, window, speed, isVisible, color=(200, 0, 0), bulletType="p_common"):
+        self.window = window
         self.position = None
         self.speed = speed
         self.isVisible = isVisible
@@ -19,7 +20,7 @@ class Bullet:
 
     def DrawBullet(self):
         if self.isVisible:
-            pygame.draw.circle(window, self.color, self.position, 5)
+            pygame.draw.circle(self.window, self.color, self.position, 5)
 
     def MoveBullet(self):
         if self.isVisible:
@@ -66,7 +67,8 @@ class Bullet:
                         return
 
 class Player:
-    def __init__(self, position, speed, health=10):
+    def __init__(self, window, position, speed, health=10):
+        self.window = window
         self.health = health
 
         self.Type = "player"
@@ -76,11 +78,11 @@ class Player:
         self.direction = 270
         self.hitbox = pygame.rect.Rect(self.position[0] - 30, self.position[1] - 30, 60, 60)
 
-        self.bullets = [Bullet(playerBulletSpeed, False, bulletType="p_common") for i in range(7)]
+        self.bullets = [Bullet(window, playerBulletSpeed, False, bulletType="p_common") for i in range(7)]
 
     def Draw(self):
         pygame.draw.circle(
-            surface=window,
+            surface=self.window,
             color=(200, 0, 0),
             center=self.position,
             radius=30
@@ -160,7 +162,8 @@ class Player:
 
 
 class Enemy:
-    def __init__(self, position, health, speed, bulletType="e_common"):
+    def __init__(self, window, position, health, speed, bulletType="e_common"):
+        self.window = window
         self.position = position
         self.direction = random.randint(0, 7) * 45
         self.hitbox = pygame.rect.Rect(self.position[0] - 20, self.position[1] - 20, 40, 40)
@@ -179,7 +182,7 @@ class Enemy:
         self.hitbox = pygame.rect.Rect(self.position[0] - 30, self.position[1] - 30, 60, 60)
 
     def Draw(self):
-        pygame.draw.circle(window, (0, 200, 0), self.position, 20)
+        pygame.draw.circle(self.window, (0, 200, 0), self.position, 20)
 
     def isAlive(self):
         return self.health > 0
@@ -189,9 +192,9 @@ class Enemy:
 
 
 class Minion(Enemy):
-    def __init__(self, position, health, speed, bulletType="e_common"):
-        Enemy.__init__(self, position, health, speed, bulletType)
-        self.bullets = [Bullet(enemyBulletSpeed, False, color=(0, 200, 0), bulletType=bulletType)]
+    def __init__(self, window, position, health, speed, bulletType="e_common"):
+        Enemy.__init__(self, window, position, health, speed, bulletType)
+        self.bullets = [Bullet(window, enemyBulletSpeed, False, color=(0, 200, 0), bulletType=bulletType)]
 
     def Shoot(self, hero):
         if hero.isVisible(self.position):
@@ -217,6 +220,3 @@ class Minion(Enemy):
                 direction = closestDeg
 
             self.bullets[0].MakeVisible(self.position, direction)
-
-# классы противников
-enemyClasses = (Enemy, Minion)
