@@ -1,13 +1,16 @@
 import pygame
 from settings import locationsBuffer, resolution
 from environment.door import Door
-
+import globals
+import random
+from entities.enemy import Enemy, Minion
+enemyClasses = (Enemy, Minion)
 class Location:
     def __init__(self, objects=[], texture=None, entities=[], color=(0,0,0)):
         self.obiects = objects
         self.texture = texture
         self.doors = []
-        self.entities = entities + [hero]
+        self.entities = entities + [globals.hero]
         self.color = color
 
     def MakeDoors(self):
@@ -27,10 +30,10 @@ class Location:
 
     def Draw(self):
         if self.texture != None:
-            window.blit(self.texture, (0, 0))
+            globals.window.blit(self.texture, (0, 0))
 
         else:
-            window.fill(self.color)
+            globals.window.fill(self.color)
 
         for door in self.doors:
             door.Draw()

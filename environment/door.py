@@ -1,6 +1,7 @@
 import pygame
 from settings import resolution
 from entities.player import Player
+import globals
 
 class Door:
     def __init__(self, position, side, texture=None, isVisible=False):
@@ -14,10 +15,10 @@ class Door:
     def Draw(self):
         if self.isVisible:
             if self.texture != None:
-                window.blit(self.texture, self.position)
+                globals.window.blit(self.texture, self.position)
 
             else:
-                pygame.draw.circle(window, (200, 200, 200), self.position, 50)
+                pygame.draw.circle(globals.window, (200, 200, 200), self.position, 50)
 
     def MakeVisible(self):
         if not self.isVisible:
@@ -25,6 +26,6 @@ class Door:
 
     def PlayerCollidepoint(self):
         global changeLocation
-        if self.isVisible and self.hitbox.collidepoint(hero.position[0], hero.position[1]):
+        if self.isVisible and self.hitbox.collidepoint(globals.hero.position[0], globals.hero.position[1]):
             self.isVisible = False
             changeLocation = self.side

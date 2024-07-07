@@ -1,4 +1,5 @@
 import pygame
+import globals
 
 class Objects:
     def __init__(self, position, isCollidable, health=None, texture=None, color=(50, 100, 200)):
@@ -16,10 +17,10 @@ class Objects:
     def Draw(self):
         if (self.health != 0):
             if self.texture == None:
-                pygame.draw.circle(window, self.color, self.position, 10)
+                pygame.draw.circle(globals.window, self.color, self.position, 10)
 
             else:
-                window.blit(self.texture, self.position)
+                globals.window.blit(self.texture, self.position)
 
     def Collidepoint(self, entities):
         if self.isCollidable:
