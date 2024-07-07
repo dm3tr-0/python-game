@@ -1,6 +1,6 @@
 import pygame
 import time
-from settings import playerSpeed, worldSides, resolution, shiftSpeed, sqrtTwo
+from settings import playerSpeed, worldSides, resolution, shiftSpeed, sqrtTwo, playerBulletSpeed
 from entities.bullet import Bullet
 
 class Player:

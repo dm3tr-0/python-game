@@ -2,10 +2,11 @@ import pygame
 import random
 import time
 import math
-from settings import enemySpeed, resolution, DEGREES
+from settings import enemySpeed, resolution, DEGREES, enemyBulletSpeed
 from utils import DegreeToMove, closest_degree
 from entities.bullet import Bullet
 from entities.player import Player
+import globals
 
 class Enemy:
     def __init__(self, position, health, speed, bulletType="e_common"):
@@ -26,7 +27,7 @@ class Enemy:
         self.hitbox = pygame.rect.Rect(self.position[0] - 30, self.position[1] - 30, 60, 60)
 
     def Draw(self):
-        pygame.draw.circle(window, (0, 200, 0), self.position, 20)
+        pygame.draw.circle(globals.window, (0, 200, 0), self.position, 20)
 
     def isAlive(self):
         return self.health > 0
@@ -41,10 +42,10 @@ class Minion(Enemy):
         self.bullets = [Bullet(enemyBulletSpeed, False, color=(0, 200, 0), bulletType=bulletType)]
 
     def Shoot(self):
-        if hero.isVisible(self.position):
+        if globals.hero.isVisible(self.position):
             direction = None
             x0, y0 = self.position[0], self.position[1]
-            x, y = hero.position[0], hero.position[1]
+            x, y = globals.hero.position[0], globals.hero.position[1]
             if (x == x0):
                 if (y > y0):
                     direction = 270

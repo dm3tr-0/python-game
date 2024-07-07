@@ -4,7 +4,9 @@ from entities.player import Player
 from entities.enemy import Enemy, Minion
 from environment.objects import Objects
 from environment.location import Location
-
+import globals
+from utils import DegreeToMove
+enemyClasses = (Enemy, Minion)
 class Bullet:
     def __init__(self, speed, isVisible, color=(200, 0, 0), bulletType="p_common"):
         self.position = None
@@ -20,7 +22,7 @@ class Bullet:
 
     def DrawBullet(self):
         if self.isVisible:
-            pygame.draw.circle(window, self.color, self.position, 5)
+            pygame.draw.circle(globals.window, self.color, self.position, 5)
 
     def MoveBullet(self):
         if self.isVisible:
