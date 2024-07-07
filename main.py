@@ -3,7 +3,13 @@ import pygame, os, sys, time, math, random, threading
 sys.setrecursionlimit(int(1e9))
 
 # скорость
-SPEED_ = 500
+FrameRate = 120
+playerSpeed = int(150 / FrameRate * 10) / 10
+enemyBulletSpeed = int(200 / FrameRate * 10) / 10
+playerBulletSpeed = int(400 / FrameRate * 10) / 10
+enemySpeed = int(50 / FrameRate * 10) / 10
+shiftSpeed = 100
+
 # направление в зависимости от зажатых клавиш wasd
 worldSides = {
     "w": 270,
@@ -179,13 +185,20 @@ class Bullet:
                         self.position = None
                         return
 
-                    elif type(entity) in (Enemy, Minion) and self.bulletType[0] == "p":
+                    elif type(entity) in enemyClasses and self.bulletType[0] == "p":
                         entity.health -= self.damage
                         self.isVisible = False
                         self.direction = None
                         self.position = None
                         return
 
+                    elif type(entity) == Objects:
+                        if entity.health != None and entity.health != 0:
+                            entity.health -= min(self.damage, entity.health)
+                        self.isVisible = False
+                        self.direction = None
+                        self.position = None
+                        return
 
 class Player:
     def __init__(self, position, speed, health=10):
@@ -197,7 +210,7 @@ class Player:
         self.direction = 270
         self.hitbox = pygame.rect.Rect(self.position[0] - 30, self.position[1] - 30, 60, 60)
 
-        self.bullets = [Bullet(1, False, bulletType="p_common") for i in range(7)]
+        self.bullets = [Bullet(playerBulletSpeed, False, bulletType="p_common") for i in range(7)]
 
     def Draw(self):
         global window
@@ -248,25 +261,25 @@ class Player:
             self.lastShift = time.time()
             if len(currentDirection) == 2:
                 if currentDirection[0] == "w":
-                    self.position[1] -= min(SPEED_ / sqrtTwo * self.speed, self.position[1])
+                    self.position[1] -= min(shiftSpeed / sqrtTwo * self.speed, self.position[1])
                 else:
-                    self.position[1] += min(SPEED_ / sqrtTwo * self.speed, resolution[1] - self.position[1])
+                    self.position[1] += min(shiftSpeed / sqrtTwo * self.speed, resolution[1] - self.position[1])
 
                 if (currentDirection[1] == "a"):
-                    self.position[0] -= min(SPEED_ / sqrtTwo * self.speed, self.position[0])
+                    self.position[0] -= min(shiftSpeed / sqrtTwo * self.speed, self.position[0])
                 else:
-                    self.position[0] += min(SPEED_ / sqrtTwo * self.speed, resolution[0] - self.position[0])
+                    self.position[0] += min(shiftSpeed / sqrtTwo * self.speed, resolution[0] - self.position[0])
 
             elif len(currentDirection) == 1:
                 if currentDirection[0] == "w":
-                    self.position[1] -= min(SPEED_ * self.speed, self.position[1])
+                    self.position[1] -= min(shiftSpeed * self.speed, self.position[1])
                 elif currentDirection[0] == "s":
-                    self.position[1] += min(SPEED_ * self.speed, resolution[1] - self.position[1])
+                    self.position[1] += min(shiftSpeed * self.speed, resolution[1] - self.position[1])
 
                 elif (currentDirection[0] == "a"):
-                    self.position[0] -= min(SPEED_ * self.speed, self.position[0])
+                    self.position[0] -= min(shiftSpeed * self.speed, self.position[0])
                 else:
-                    self.position[0] += min(SPEED_ * self.speed, resolution[0] - self.position[0])
+                    self.position[0] += min(shiftSpeed * self.speed, resolution[0] - self.position[0])
 
         self.hitbox = pygame.rect.Rect(self.position[0] - 30, self.position[1] - 30, 60, 60)
 
@@ -312,7 +325,7 @@ class Enemy:
 class Minion(Enemy):
     def __init__(self, position, health, speed, bulletType="e_common"):
         Enemy.__init__(self, position, health, speed, bulletType)
-        self.bullets = [Bullet(0.2, False, color=(0, 200, 0), bulletType=bulletType)]
+        self.bullets = [Bullet(enemyBulletSpeed, False, color=(0, 200, 0), bulletType=bulletType)]
 
     def Shoot(self):
         if hero.isVisible(self.position):
@@ -339,19 +352,43 @@ class Minion(Enemy):
 
             self.bullets[0].MakeVisible(self.position, direction)
 
-def RandomLocation():
-    global locationsBuffer
-    tempLocation = locationsBuffer[0]
-    locationsBuffer.remove(tempLocation)
-    print('change')
-    return tempLocation
+# классы противников
+enemyClasses = (Enemy, Minion)
+
+class Objects:
+    def __init__(self, position, isCollidable, health=None, texture=None, color=(50, 100, 200)):
+        self.texture = texture
+        self.health = health
+        self.isCollidable = isCollidable
+        self.position = position
+        if self.texture != None:
+            self.hitbox = pygame.rect.Rect(self.texture)
+        else:
+            self.hitbox = pygame.rect.Rect(self.position[0] - 10, self.position[1] - 10, 20, 20)
+        # заглушка для отрисовки
+        self.color = color
+
+    def Draw(self):
+        if (self.health != 0):
+            if self.texture == None:
+                pygame.draw.circle(window, self.color, self.position, 10)
+
+            else:
+                window.blit(self.texture, self.position)
+
+    def Collidepoint(self, entities):
+        if self.isCollidable:
+            pass
+
+    def Interact(self):
+        pass
 
 class Location:
     def __init__(self, objects=[], texture=None, entities=[], color=(0,0,0)):
         self.obiects = objects
         self.texture = texture
         self.doors = []
-        self.entities = [hero] + entities
+        self.entities = entities + [hero]
         self.color = color
 
     def MakeDoors(self):
@@ -379,6 +416,9 @@ class Location:
         for door in self.doors:
             door.Draw()
 
+        for obj in self.obiects:
+            obj.Draw()
+
         for entity in self.entities:
             for bullet in entity.bullets:
                 bullet.DrawBullet()
@@ -389,8 +429,9 @@ class Location:
             for bullet in entity.bullets:
                 bullet.MoveBullet()
                 bullet.BulletColidepoint(self.entities)
+                bullet.BulletColidepoint(self.obiects)
 
-            if type(entity) in (Enemy, Minion):
+            if type(entity) in enemyClasses:
                 if entity.isAlive():
                     entity.Move()
                     entity.Shoot()
@@ -436,12 +477,12 @@ class Item:
 
 def UpdateLocations():
     global locationsBuffer
-    enemies1 = [Minion([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=0.1) for i in range(random.randint(1, 3))]
-    enemies2 = [Minion([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=0.1) for i in range(random.randint(1, 3))]
-    enemies3 = [Minion([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=0.1) for i in range(random.randint(1, 3))]
-    locationsBuffer = [Location([1], entities=enemies1, color=(0, 200, 200)),
-                        Location([1], entities=enemies2, color=(0, 0, 200)),
-                        Location([1], entities=enemies3, color=(100, 100, 200))]
+    enemies1 = [Minion([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=enemySpeed) for i in range(random.randint(1, 3))]
+    enemies2 = [Minion([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=enemySpeed) for i in range(random.randint(1, 3))]
+    enemies3 = [Minion([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], 1, speed=enemySpeed) for i in range(random.randint(1, 3))]
+    locationsBuffer = [Location([Objects([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies1, color=(0, 200, 200)),
+                        Location([Objects([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies2, color=(0, 0, 200)),
+                        Location([Objects([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies3, color=(100, 100, 200))]
 
 def draw():
     currentlocation.Draw()
@@ -453,16 +494,18 @@ def main():
     resolution = (800, 600)
     window = pygame.display.set_mode(resolution)
     pygame.display.set_caption("")
+    clock = pygame.time.Clock()
     # pygame.display.set_icon("")
-    hero = Player([resolution[0] / 2, resolution[1] / 2], 0.2)
-    enemies = [Minion([200, 200], 1, speed=0.1)]
-    currentlocation = Location([1], entities=enemies, color =(100,100,100))
+    hero = Player([resolution[0] / 2, resolution[1] / 2], playerSpeed)
+    enemies = [Minion([200, 200], 1, speed=enemySpeed)]
+    currentlocation = Location([Objects([random.randint(100, resolution[0] - 100), random.randint(100, resolution[1] - 100)], True) for i in range(random.randint(1, 5))], entities=enemies, color =(100,100,100))
     UpdateLocations()
     changeLocation = 0
 
     gameOver = False
 
     while not gameOver:
+        clock.tick(FrameRate)
 
         draw()
         hero.Move()
@@ -485,9 +528,10 @@ def main():
                 if event.key == pygame.K_q:
                     gameOver = True
                     break
+                if event.key == pygame.K_DOWN:
+                    hero.Usecase(1)
 
     pygame.quit()
-
 
 if __name__ == '__main__':
     mainGame = threading.Thread(target=main)
